@@ -172,18 +172,18 @@ void initRubikCube() {
                     piece.colors[1][2] = COLOR_ORANGE[2];
                 }
                 
-                // Mặt trái (X=-1): Xanh dương
+                // Mặt trái (X=-1): Xanh lá
                 if (i == -1) {
-                    piece.colors[2][0] = COLOR_BLUE[0];
-                    piece.colors[2][1] = COLOR_BLUE[1];
-                    piece.colors[2][2] = COLOR_BLUE[2];
+                    piece.colors[2][0] = COLOR_GREEN[0];
+                    piece.colors[2][1] = COLOR_GREEN[1];
+                    piece.colors[2][2] = COLOR_GREEN[2];
                 }
                 
-                // Mặt phải (X=1): Xanh lá
+                // Mặt phải (X=1): Xanh dương
                 if (i == 1) {
-                    piece.colors[3][0] = COLOR_GREEN[0];
-                    piece.colors[3][1] = COLOR_GREEN[1];
-                    piece.colors[3][2] = COLOR_GREEN[2];
+                    piece.colors[3][0] = COLOR_BLUE[0];
+                    piece.colors[3][1] = COLOR_BLUE[1];
+                    piece.colors[3][2] = COLOR_BLUE[2];
                 }
                 
                 // Mặt trên (Y=1): Trắng

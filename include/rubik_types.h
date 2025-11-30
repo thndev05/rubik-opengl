@@ -5,8 +5,8 @@
 enum Face {
     FRONT = 0,  // Đỏ
     BACK = 1,   // Cam
-    LEFT = 2,   // Xanh dương
-    RIGHT = 3,  // Xanh lá
+    LEFT = 2,   // Xanh lá
+    RIGHT = 3,  // Xanh dương
     UP = 4,     // Trắng
     DOWN = 5    // Vàng
 };
