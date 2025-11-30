@@ -15,8 +15,8 @@ const float COLOR_WHITE[] = {1.0f, 1.0f, 1.0f};   // Trên (Up)
 const float COLOR_YELLOW[] = {1.0f, 1.0f, 0.0f};  // Dưới (Down)
 const float COLOR_RED[] = {1.0f, 0.0f, 0.0f};     // Trước (Front)
 const float COLOR_ORANGE[] = {1.0f, 0.5f, 0.0f};  // Sau (Back)
-const float COLOR_GREEN[] = {0.0f, 1.0f, 0.0f};   // Phải (Right)
-const float COLOR_BLUE[] = {0.0f, 0.0f, 1.0f};    // Trái (Left)
+const float COLOR_GREEN[] = {0.0f, 1.0f, 0.0f};   // Trái (Left)
+const float COLOR_BLUE[] = {0.0f, 0.0f, 1.0f};    // Phải (Right)
 const float COLOR_BLACK[] = {0.1f, 0.1f, 0.1f};   // Mặt ẩn
 
 // Hằng số animation
