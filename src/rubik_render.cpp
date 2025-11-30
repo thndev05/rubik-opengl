@@ -30,23 +30,32 @@ void rotateAroundAxis(const float axis[3], float angle) {
     }
 }
 
+// Khởi tạo các cài đặt OpenGL
 void initOpenGL() {
+    // Tắt culling để vẽ cả 2 mặt của mỗi polygon
     glDisable(GL_CULL_FACE);
+    
+    // Bật depth test để xử lý độ sâu đúng
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
+    // Bật multisampling (nếu hỗ trợ) để làm mượt cạnh
 #ifdef GL_MULTISAMPLE
     glEnable(GL_MULTISAMPLE);
 #endif
+    
+    // Cài đặt để vẽ đường viền mượt
     glEnable(GL_LINE_SMOOTH);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glLineWidth(1.5f);
     
+    // Màu nền xám đậm
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     glShadeModel(GL_SMOOTH);
     
+    // Tắt ánh sáng (dùng màu trực tiếp)
     glDisable(GL_LIGHTING);
     glDisable(GL_LIGHT0);
     glDisable(GL_COLOR_MATERIAL);
@@ -57,7 +66,7 @@ void drawCubePiece(const CubePiece& piece) {
     
     glBegin(GL_QUADS);
     
-    // Front face (Z+)
+    // Mặt trước (Z+)
     glColor3fv(piece.colors[0]);
     glNormal3f(0.0f, 0.0f, 1.0f);
     glVertex3f(-size, -size, size);
@@ -65,7 +74,7 @@ void drawCubePiece(const CubePiece& piece) {
     glVertex3f(size, size, size);
     glVertex3f(-size, size, size);
     
-    // Back face (Z-)
+    // Mặt sau (Z-)
     glColor3fv(piece.colors[1]);
     glNormal3f(0.0f, 0.0f, -1.0f);
     glVertex3f(size, -size, -size);
@@ -73,7 +82,7 @@ void drawCubePiece(const CubePiece& piece) {
     glVertex3f(-size, size, -size);
     glVertex3f(size, size, -size);
     
-    // Left face (X-)
+    // Mặt trái (X-)
     glColor3fv(piece.colors[2]);
     glNormal3f(-1.0f, 0.0f, 0.0f);
     glVertex3f(-size, -size, -size);
@@ -81,7 +90,7 @@ void drawCubePiece(const CubePiece& piece) {
     glVertex3f(-size, size, size);
     glVertex3f(-size, size, -size);
     
-    // Right face (X+)
+    // Mặt phải (X+)
     glColor3fv(piece.colors[3]);
     glNormal3f(1.0f, 0.0f, 0.0f);
     glVertex3f(size, -size, size);
@@ -89,7 +98,7 @@ void drawCubePiece(const CubePiece& piece) {
     glVertex3f(size, size, -size);
     glVertex3f(size, size, size);
     
-    // Up face (Y+)
+    // Mặt trên (Y+)
     glColor3fv(piece.colors[4]);
     glNormal3f(0.0f, 1.0f, 0.0f);
     glVertex3f(-size, size, size);
@@ -97,7 +106,7 @@ void drawCubePiece(const CubePiece& piece) {
     glVertex3f(size, size, -size);
     glVertex3f(-size, size, -size);
     
-    // Down face (Y-)
+    // Mặt dưới (Y-)
     glColor3fv(piece.colors[5]);
     glNormal3f(0.0f, -1.0f, 0.0f);
     glVertex3f(-size, -size, -size);
@@ -108,59 +117,71 @@ void drawCubePiece(const CubePiece& piece) {
     glEnd();
 }
 
+// Vẽ toàn bộ Rubik's Cube (27 mảnh)
 void drawRubikCube() {
     glPushMatrix();
     
+    // Duyệt qua tất cả 27 mảnh
     for (int i = 0; i < 27; i++) {
         const CubePiece& piece = g_rubikCube.pieces[i];
         
+        // Bỏ qua mảnh ẩn (nếu có)
         if (!piece.isVisible) {
             continue;
         }
         
+        // Tính vị trí thế giới từ toạ độ lưới
         float worldX = (float)piece.position[0] * (g_rubikCube.pieceSize + g_rubikCube.gapSize);
         float worldY = (float)piece.position[1] * (g_rubikCube.pieceSize + g_rubikCube.gapSize);
         float worldZ = (float)piece.position[2] * (g_rubikCube.pieceSize + g_rubikCube.gapSize);
         
         glPushMatrix();
         
+        // Kiểm tra xem mảnh này có đang trong animation không
         bool pieceAnimating = g_animation.isActive && isPieceInAnimation(i);
         if (pieceAnimating) {
+            // Xác định trục xoay dựa trên mặt đang xoay
             float axisX = 0.0f;
             float axisY = 0.0f;
             float axisZ = 0.0f;
             int axisSign = 1;
+            
             switch (g_animation.face) {
-                case FRONT:
+                case FRONT:  // Mặt trước: xoay quanh Z+
                     axisZ = 1.0f;
                     axisSign = 1;
                     break;
-                case BACK:
+                case BACK:   // Mặt sau: xoay quanh Z-
                     axisZ = 1.0f;
                     axisSign = -1;
                     break;
-                case LEFT:
+                case LEFT:   // Mặt trái: xoay quanh X-
                     axisX = 1.0f;
                     axisSign = -1;
                     break;
-                case RIGHT:
+                case RIGHT:  // Mặt phải: xoay quanh X+
                     axisX = 1.0f;
                     axisSign = 1;
                     break;
-                case UP:
+                case UP:     // Mặt trên: xoay quanh Y+
                     axisY = 1.0f;
                     axisSign = 1;
                     break;
-                case DOWN:
+                case DOWN:   // Mặt dưới: xoay quanh Y-
                     axisY = 1.0f;
                     axisSign = -1;
                     break;
             }
+            
+            // Tính góc xoay (xuôi/ngược chiều)
             float angle = g_animation.clockwise ? -g_animation.displayAngle : g_animation.displayAngle;
             angle *= static_cast<float>(axisSign);
+            
+            // Áp dụng xoay trước khi dịch chuyển
             glRotatef(angle, axisX, axisY, axisZ);
         }
         
+        // Dịch chuyển mảnh tới vị trí của nó
         glTranslatef(worldX, worldY, worldZ);
         drawCubePiece(piece);
         glPopMatrix();
@@ -169,23 +190,29 @@ void drawRubikCube() {
     glPopMatrix();
 }
 
+// Hàm callback hiển thị - vẽ tất cả mọi frame
 void display() {
+    // Xóa buffer màu và depth
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
     
+    // Ghi log mỗi 30 frame (giảm spam log)
     static int frameCount = 0;
     if (frameCount++ % 30 == 0 && g_logFile != NULL) {
         fprintf(g_logFile, "DISPLAY: frame=%d\n", frameCount);
         fflush(g_logFile);
     }
     
-    glTranslatef(0.0f, 0.0f, -CAMERA_DISTANCE);
-    rotateAroundAxis(horizontalAxis, cameraAngleY);
-    rotateAroundAxis(verticalAxis, cameraAngleX);
+    // Thiết lập camera
+    glTranslatef(0.0f, 0.0f, -CAMERA_DISTANCE);  // Lùi camera ra xa
+    rotateAroundAxis(horizontalAxis, cameraAngleY);  // Xoay theo trục ngang
+    rotateAroundAxis(verticalAxis, cameraAngleX);    // Xoay theo trục dọc
     
+    // Vẽ cube và UI
     drawRubikCube();
     displayTimerOverlay();
     
+    // Hoán đổi buffer (double buffering)
     glutSwapBuffers();
 }
 

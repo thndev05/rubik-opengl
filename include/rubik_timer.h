@@ -3,17 +3,17 @@
 
 #include "rubik_types.h"
 
-// Global timer state
+// Trạng thái timer toàn cục
 extern SpeedTimer g_timer;
 
-// Timer functions
+// Hàm timer
 void resetTimerState();
 void armTimerForSolve();
 void updateTimer();
 void onMoveStarted();
 void handleScrambleMoveCompletion(bool wasScrambleMove);
 
-// Timer display
+// Hiển thị timer
 void displayTimerOverlay();
 void renderBitmapString(float x, float y, void* font, const char* string);
 void formatTimerText(float seconds, char* buffer, int bufferSize);

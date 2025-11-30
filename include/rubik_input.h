@@ -3,7 +3,7 @@
 
 #include "rubik_types.h"
 
-// Camera control
+// Điều khiển camera
 extern float cameraAngleX;
 extern float cameraAngleY;
 extern bool isDragging;
@@ -13,14 +13,14 @@ extern Face currentFrontFace;
 extern float verticalAxis[3];
 extern float horizontalAxis[3];
 
-// Input callbacks
+// Callback input
 void mouse(int button, int state, int x, int y);
 void motion(int x, int y);
 void keyboard(unsigned char key, int x, int y);
 void keyboardUp(unsigned char key, int x, int y);
 void keyboardSpecial(int key, int x, int y);
 
-// View management
+// Quản lý góc nhìn
 void updateRotationAxes();
 void resetRotationAngles();
 void computeViewFaceMapping(ViewFaceMapping& mapping);

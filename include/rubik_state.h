@@ -5,30 +5,30 @@
 #include <cstdio>
 #include <ctime>
 
-// Global Rubik's Cube instance
+// Instance toàn cục Rubik's Cube
 extern RubikCube g_rubikCube;
 
-// Debugging
+// Debug
 extern FILE* g_logFile;
 extern clock_t g_logStartClock;
 
-// Initialize and manage cube state
+// Khởi tạo và quản lý trạng thái cube
 void initRubikCube();
 void resetCube();
 void shuffleCube(int numMoves);
 bool isCubeSolved();
 
-// Utility functions
+// Hàm tiện ích
 int positionToIndex(int i, int j, int k);
 void getFaceIndices(int face, int indices[9]);
 int encodePositionKey(int x, int y, int z);
 
-// Logging functions
+// Hàm logging
 void initLogFile();
 void closeLogFile();
 double getLogTimestampMs();
 
-// Test functions
+// Hàm kiểm tra
 void testRotationIdentity();
 
 #endif // RUBIK_STATE_H

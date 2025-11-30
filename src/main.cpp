@@ -1,31 +1,31 @@
 /*
- * Rubik's Cube - 3x3x3 Rubik's Cube Simulator
- * Computer Graphics Final Project
+ * Rubik's Cube - Mô phỏng Rubik 3x3x3
+ * Đồ án cuối kỳ Đồ họa Máy tính
  * 
- * This is a modular implementation of a Rubik's Cube simulator with:
- * - Full 3x3x3 cube with 27 pieces
- * - Smooth animations with easing
- * - Camera rotation controls (mouse drag & arrow keys)
- * - Face rotation controls (F/U/R/L/D/B keys)
- * - Timer and speedsolving features
- * - Auto-scramble functionality
+ * Đây là phiên bản module hóa của chương trình mô phỏng Rubik's Cube với:
+ * - Rubik 3x3x3 đầy đủ với 27 mảnh
+ * - Animation mượt mà với easing
+ * - Điều khiển camera (kéo chuột & phím mũi tên)
+ * - Điều khiển xoay mặt (phím F/U/R/L/D/B)
+ * - Tính năng timer và speedsolving
+ * - Chức năng trộn tự động
  * 
- * Compilation (Windows/MinGW - PowerShell):
- * g++ -std=c++98 -Wall -Wextra -O2 main.cpp rubik_state.cpp rubik_rotation.cpp rubik_animation.cpp rubik_timer.cpp rubik_input.cpp rubik_render.cpp -lfreeglut -lopengl32 -lglu32 -o rubik.exe
+ * Biên dịch (Windows/MinGW - PowerShell):
+ * g++ -std=c++98 -Wall -Wextra -O2 src\main.cpp src\rubik_state.cpp src\rubik_rotation.cpp src\rubik_animation.cpp src\rubik_timer.cpp src\rubik_input.cpp src\rubik_render.cpp -Iinclude -I"C:\mingw64\include" -L"C:\mingw64\lib" -lfreeglut -lopengl32 -lglu32 -o build\rubik.exe
  * 
- * Or one-line compile + run:
- * g++ -std=c++98 -Wall -Wextra -O2 main.cpp rubik_state.cpp rubik_rotation.cpp rubik_animation.cpp rubik_timer.cpp rubik_input.cpp rubik_render.cpp -lfreeglut -lopengl32 -lglu32 -o rubik.exe; if ($?) { .\rubik.exe }
+ * Hoặc dùng build.bat:
+ * build.bat
  * 
- * Compilation (Linux):
- * g++ -std=c++98 -Wall -Wextra -O2 main.cpp rubik_state.cpp rubik_rotation.cpp rubik_animation.cpp rubik_timer.cpp rubik_input.cpp rubik_render.cpp -lglut -lGLU -lGL -lm -o rubik
+ * Biên dịch (Linux):
+ * g++ -std=c++98 -Wall -Wextra -O2 src/main.cpp src/rubik_state.cpp src/rubik_rotation.cpp src/rubik_animation.cpp src/rubik_timer.cpp src/rubik_input.cpp src/rubik_render.cpp -Iinclude -lglut -lGLU -lGL -lm -o build/rubik
  * 
- * Controls:
- * - Mouse drag: Rotate camera view
- * - Arrow keys: Rotate camera view
- * - F/U/R/L/D/B: Rotate Front/Up/Right/Left/Down/Back face clockwise
- * - Shift + F/U/R/L/D/B: Rotate face counter-clockwise
- * - S: Scramble cube (20 random moves)
- * - Space: Reset cube to solved state
+ * Điều khiển:
+ * - Kéo chuột: Xoay góc nhìn camera
+ * - Phím mũi tên: Xoay góc nhìn camera
+ * - F/U/R/L/D/B: Xoay mặt Front/Up/Right/Left/Down/Back theo chiều kim đồng hồ
+ * - Shift + F/U/R/L/D/B: Xoay mặt ngược chiều kim đồng hồ
+ * - S: Trộn cube (20 bước ngẫu nhiên)
+ * - Space: Reset cube về trạng thái đã giải
  */
 
 #include <GL/glut.h>
@@ -33,7 +33,7 @@
 #include <ctime>
 #include <iostream>
 
-// Include all module headers
+// Include tất cả các module headers
 #include "rubik_types.h"
 #include "rubik_constants.h"
 #include "rubik_state.h"
@@ -44,42 +44,42 @@
 #include "rubik_render.h"
 
 int main(int argc, char** argv) {
-    // Initialize debug log file
+    // Khởi tạo file log debug
     initLogFile();
     
-    // Initialize GLUT
+    // Khởi tạo GLUT
     glutInit(&argc, argv);
     
-    // Set display mode
+    // Thiết lập chế độ hiển thị
     unsigned int displayMode = GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH;
 #ifdef GLUT_MULTISAMPLE
     displayMode |= GLUT_MULTISAMPLE;
 #endif
     glutInitDisplayMode(displayMode);
     
-    // Set window size and position
+    // Thiết lập kích thước và vị trí cửa sổ
     glutInitWindowSize(800, 600);
     glutInitWindowPosition(100, 100);
     
-    // Create window
-    glutCreateWindow("Rubik's Cube - 3x3x3 Simulator");
+    // Tạo cửa sổ
+    glutCreateWindow("Rubik's Cube - Mô phỏng 3x3x3");
     
-    // Initialize OpenGL settings
+    // Khởi tạo cài đặt OpenGL
     initOpenGL();
     
-    // Initialize Rubik's Cube
+    // Khởi tạo Rubik's Cube
     initRubikCube();
     
-    // Test rotation identity
+    // Kiểm tra tính đúng đắn của phép xoay
     testRotationIdentity();
     
-    // Initialize rotation axes
+    // Khởi tạo các trục xoay
     updateRotationAxes();
     
-    // Initialize random seed for shuffle
+    // Khởi tạo seed ngẫu nhiên cho chức năng trộn
     srand((unsigned int)time(NULL));
     
-    // Register callback functions
+    // Đăng ký các hàm callback
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
     glutMouseFunc(mouse);
@@ -92,25 +92,25 @@ int main(int argc, char** argv) {
     
     g_lastTimeMs = glutGet(GLUT_ELAPSED_TIME);
     
-    // Log initialization complete
+    // Ghi log hoàn tất khởi tạo
     if (g_logFile != NULL) {
-        fprintf(g_logFile, "Application initialized successfully\n\n");
+        fprintf(g_logFile, "Ứng dụng khởi tạo thành công\n\n");
         fflush(g_logFile);
     }
     
-    std::cout << "=== Rubik's Cube Simulator ===" << std::endl;
-    std::cout << "Controls:" << std::endl;
-    std::cout << "  Mouse drag: Rotate camera" << std::endl;
-    std::cout << "  Arrow keys: Rotate camera" << std::endl;
-    std::cout << "  F/U/R/L/D/B: Rotate faces (Shift for counter-clockwise)" << std::endl;
-    std::cout << "  S: Scramble (20 random moves)" << std::endl;
-    std::cout << "  Space: Reset to solved state" << std::endl;
+    std::cout << "=== Mô phỏng Rubik's Cube ===" << std::endl;
+    std::cout << "Điều khiển:" << std::endl;
+    std::cout << "  Kéo chuột: Xoay camera" << std::endl;
+    std::cout << "  Phím mũi tên: Xoay camera" << std::endl;
+    std::cout << "  F/U/R/L/D/B: Xoay mặt (Shift để xoay ngược chiều)" << std::endl;
+    std::cout << "  S: Trộn cube (20 bước ngẫu nhiên)" << std::endl;
+    std::cout << "  Space: Reset về trạng thái đã giải" << std::endl;
     std::cout << "==============================\n" << std::endl;
     
-    // Enter GLUT main loop
+    // Vào vòng lặp chính của GLUT
     glutMainLoop();
     
-    // Close log file before exit
+    // Đóng file log trước khi thoát
     closeLogFile();
     
     return 0;

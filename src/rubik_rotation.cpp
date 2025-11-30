@@ -6,6 +6,8 @@
 #include <cstring>
 #include <cstdio>
 
+// Trả về mặt đối diện của một mặt cho trước
+// Ví dụ: FRONT <-> BACK, LEFT <-> RIGHT, UP <-> DOWN
 Face getOppositeFace(Face face) {
     switch (face) {
         case FRONT: return BACK;
@@ -18,12 +20,20 @@ Face getOppositeFace(Face face) {
     }
 }
 
+// Chuyển đổi từ trục-góc (axis-angle) sang ma trận xoay 3x3
+// Sử dụng công thức Rodrigues' rotation
+// Tham số:
+//   m: Ma trận kết quả 3x3
+//   axis: Vector trục xoay [x, y, z]
+//   angleDegrees: Góc xoay tính bằng độ
 void axisAngleToMatrix(float m[3][3], const float axis[3], float angleDegrees) {
+    // Chuyển độ sang radian
     float angleRad = angleDegrees * 3.14159f / 180.0f;
-    float c = cos(angleRad);
-    float s = sin(angleRad);
-    float t = 1.0f - c;
+    float c = cos(angleRad);  // cos(theta)
+    float s = sin(angleRad);  // sin(theta)
+    float t = 1.0f - c;       // 1 - cos(theta)
     
+    // Chuẩn hóa vector trục
     float length = sqrt(axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2]);
     float x, y, z;
     if (length > 0.0001f) {
@@ -36,6 +46,7 @@ void axisAngleToMatrix(float m[3][3], const float axis[3], float angleDegrees) {
         z = axis[2];
     }
     
+    // Công thức Rodrigues' rotation matrix
     m[0][0] = t * x * x + c;
     m[0][1] = t * x * y - s * z;
     m[0][2] = t * x * z + s * y;
@@ -49,11 +60,14 @@ void axisAngleToMatrix(float m[3][3], const float axis[3], float angleDegrees) {
     m[2][2] = t * z * z + c;
 }
 
+// Nhân hai ma trận 3x3
+// result = a * b
 void matrixMultiply(float result[3][3], const float a[3][3], const float b[3][3]) {
     int i, j, k;
     for (i = 0; i < 3; i++) {
         for (j = 0; j < 3; j++) {
             result[i][j] = 0.0f;
+            // Tính tích vô hướng của hàng i và cột j
             for (k = 0; k < 3; k++) {
                 result[i][j] += a[i][k] * b[k][j];
             }
@@ -61,29 +75,51 @@ void matrixMultiply(float result[3][3], const float a[3][3], const float b[3][3]
     }
 }
 
+// Xoay một vector 3D quanh một trục bất kỳ
+// Tham số:
+//   axis: Trục xoay [x, y, z]
+//   angleDegrees: Góc xoay (độ)
+//   x, y, z: Toạ độ vector (tham chiếu - sẽ được cập nhật)
 void rotateVectorAroundAxis(const float axis[3], float angleDegrees,
                             float& x, float& y, float& z) {
+    // Nếu góc xoay quá nhỏ, bỏ qua
     if (fabs(angleDegrees) < 0.0001f) {
         return;
     }
+    
+    // Tạo ma trận xoay
     float rot[3][3];
     axisAngleToMatrix(rot, axis, angleDegrees);
+    
+    // Nhân ma trận với vector
     float rx = rot[0][0] * x + rot[0][1] * y + rot[0][2] * z;
     float ry = rot[1][0] * x + rot[1][1] * y + rot[1][2] * z;
     float rz = rot[2][0] * x + rot[2][1] * y + rot[2][2] * z;
+    
+    // Cập nhật kết quả
     x = rx;
     y = ry;
     z = rz;
 }
 
+// Xoay toạ độ rời rạc (integer) của một mảnh quanh một trục
+// Toạ độ lưới của Rubik: {-1, 0, +1} trên mỗi trục
+// Tham số:
+//   axis: 0=X, 1=Y, 2=Z
+//   axisSign: 1 hoặc -1 (đảo chiều trục)
+//   clockwise: Hướng xoay
+//   x, y, z: Toạ độ đầu vào
+//   rx, ry, rz: Toạ độ kết quả (tham chiếu)
 void rotateCoordinates(int axis, int axisSign, bool clockwise,
                        int x, int y, int z,
                        int& rx, int& ry, int& rz) {
+    // Tính dấu hiệu xoay tổng hợp
     int angleSign = clockwise ? -1 : 1;
     angleSign *= axisSign;
+    
     switch (axis) {
-        case 0: // X-axis
-            rx = x;
+        case 0: // Xoay quanh trục X
+            rx = x;  // X không đổi
             if (angleSign > 0) {
                 ry = -z;
                 rz = y;
@@ -92,8 +128,9 @@ void rotateCoordinates(int axis, int axisSign, bool clockwise,
                 rz = -y;
             }
             break;
-        case 1: // Y-axis
-            ry = y;
+            
+        case 1: // Xoay quanh trục Y
+            ry = y;  // Y không đổi
             if (angleSign > 0) {
                 rz = -x;
                 rx = z;
@@ -102,8 +139,9 @@ void rotateCoordinates(int axis, int axisSign, bool clockwise,
                 rx = -z;
             }
             break;
-        case 2: // Z-axis
-            rz = z;
+            
+        case 2: // Xoay quanh trục Z
+            rz = z;  // Z không đổi
             if (angleSign > 0) {
                 rx = -y;
                 ry = x;
@@ -112,7 +150,9 @@ void rotateCoordinates(int axis, int axisSign, bool clockwise,
                 ry = -x;
             }
             break;
+            
         default:
+            // Không xoay
             rx = x;
             ry = y;
             rz = z;
@@ -300,9 +340,17 @@ void rotatePositions(int face, bool clockwise) {
     }
 }
 
+// Hàm chính để xoay một mặt của Rubik's Cube
+// Thực hiện xoay logic (cập nhật màu sắc) của 9 mảnh trên mặt
+// Tham số:
+//   face: Mặt cần xoay (FRONT, BACK, LEFT, RIGHT, UP, DOWN)
+//   clockwise: true = xuôi chiều, false = ngược chiều
 void rotateFace(int face, bool clockwise) {
     int indices[9];
+    // Lấy danh sách 9 mảnh thuộc mặt này
     getFaceIndices(face, indices);
+    
+    // Thực hiện xoay (hoán đổi màu giữa các mảnh)
     rotatePositions(face, clockwise);
     
     if (g_logFile != NULL) {

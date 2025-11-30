@@ -3,18 +3,18 @@
 
 #include "rubik_types.h"
 
-// OpenGL initialization
+// Khởi tạo OpenGL
 void initOpenGL();
 
-// Drawing functions
+// Hàm vẽ
 void drawCubePiece(const CubePiece& piece);
 void drawRubikCube();
 
-// Display callbacks
+// Callback hiển thị
 void display();
 void reshape(int w, int h);
 
-// Rotation helpers
+// Hỗ trợ xoay
 void rotateAroundAxis(const float axis[3], float angle);
 float clampAngle(float angle, float minAngle, float maxAngle);
 
