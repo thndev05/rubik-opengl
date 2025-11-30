@@ -122,28 +122,28 @@ void displayTimerOverlay() {
     char buffer[128];
     if (g_scrambleMovesPending > 0) {
         glColor3f(1.0f, 0.6f, 0.0f);
-        snprintf(buffer, sizeof(buffer), "Đang trộn... (còn %d bước)", g_scrambleMovesPending);
+        snprintf(buffer, sizeof(buffer), "Scrambling... (%d moves left)", g_scrambleMovesPending);
         renderBitmapString(10.0f, g_windowHeight - 20.0f, GLUT_BITMAP_HELVETICA_18, buffer);
         renderBitmapString(10.0f, g_windowHeight - 40.0f, GLUT_BITMAP_HELVETICA_18,
-                           "Vui lòng đợi trộn xong");
+                           "Please wait for scramble to finish");
     } else {
         switch (g_timer.state) {
             case TIMER_IDLE:
                 glColor3f(1.0f, 1.0f, 1.0f);
                 renderBitmapString(10.0f, g_windowHeight - 20.0f, GLUT_BITMAP_HELVETICA_18,
-                                   "Nhấn 'S' để trộn cube");
+                                   "Press 'S' to scramble");
                 break;
             case TIMER_READY:
                 glColor3f(1.0f, 1.0f, 0.2f);
                 renderBitmapString(10.0f, g_windowHeight - 20.0f, GLUT_BITMAP_HELVETICA_18,
-                                   "SẴN SÀNG - Thực hiện nước đi đầu tiên để bắt đầu");
+                                   "READY - Make a move to start");
                 break;
             case TIMER_RUNNING:
                 glColor3f(0.0f, 1.0f, 0.0f);
                 formatTimerText(g_timer.currentTime, buffer, sizeof(buffer));
                 renderBitmapString(10.0f, g_windowHeight - 20.0f, GLUT_BITMAP_HELVETICA_18,
                                    buffer);
-                snprintf(buffer, sizeof(buffer), "Số nước: %d", g_timer.moveCount);
+                snprintf(buffer, sizeof(buffer), "Moves: %d", g_timer.moveCount);
                 renderBitmapString(10.0f, g_windowHeight - 40.0f, GLUT_BITMAP_HELVETICA_18,
                                    buffer);
                 snprintf(buffer, sizeof(buffer), "TPS: %.2f", g_timer.tps);
@@ -152,7 +152,7 @@ void displayTimerOverlay() {
                 break;
             case TIMER_STOPPED:
                 glColor3f(0.2f, 1.0f, 0.2f);
-                snprintf(buffer, sizeof(buffer), "Đã giải xong! Thời gian %.2fs | Số nước %d | TPS %.2f",
+                snprintf(buffer, sizeof(buffer), "Solved! Time %.2fs | Moves %d | TPS %.2f",
                          g_timer.endTime, g_timer.moveCount, g_timer.tps);
                 renderBitmapString(g_windowWidth * 0.2f, g_windowHeight * 0.5f,
                                    GLUT_BITMAP_HELVETICA_18, buffer);

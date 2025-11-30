@@ -282,7 +282,7 @@ void updateAnimation(float deltaTime) {
     }
     
     // Yêu cầu vẽ lại màn hình
-    glutPostRedisplay;
+    glutPostRedisplay();
 }
 
 // Hàm callback idle - được gọi liên tục khi chương trình rảnh
