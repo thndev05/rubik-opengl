@@ -49,32 +49,50 @@ void closeLogFile() {
     }
 }
 
-// Chuyển đổi từ toạ độ 3D (i, j, k) sang chỉ số mảng 1D
-// Toạ độ: i, j, k ∈ {-1, 0, 1}
-// Chỉ số mảng: 0-26
-// Sắp xếp: k từ 1 đến -1, rồi j từ -1 đến 1, rồi i từ -1 đến 1
+/**
+ * Chuyển đổi từ toạ độ 3D (i, j, k) sang chỉ số mảng 1D (0-26).
+ * Hàm này giúp truy cập nhanh vào mảng pieces dựa trên vị trí không gian.
+ * 
+ * @param i Toạ độ X (Trái/Phải): -1, 0, 1
+ * @param j Toạ độ Y (Dưới/Trên): -1, 0, 1
+ * @param k Toạ độ Z (Sau/Trước): -1, 0, 1
+ * @return Chỉ số trong mảng g_rubikCube.pieces (0-26).
+ * 
+ * Quy tắc sắp xếp trong mảng:
+ * - Lớp Z=1 (Trước): 9 phần tử đầu (0-8)
+ * - Lớp Z=0 (Giữa): 9 phần tử tiếp (9-17)
+ * - Lớp Z=-1 (Sau): 9 phần tử cuối (18-26)
+ * Trong mỗi lớp, sắp xếp theo hàng (Y) rồi đến cột (X).
+ */
 int positionToIndex(int i, int j, int k) {
-    int kOffset = (k == 1) ? 0 : (k == 0) ? 9 : 18;  // Lớp: trước(0-8), giữa(9-17), sau(18-26)
-    int jOffset = (j + 1) * 3;  // Hàng: dưới(0-2), giữa(3-5), trên(6-8)
-    int iOffset = (i + 1);      // Cột: trái(0), giữa(1), phải(2)
+    int kOffset = (k == 1) ? 0 : (k == 0) ? 9 : 18;  // Offset lớp Z
+    int jOffset = (j + 1) * 3;  // Offset hàng Y (0, 3, 6)
+    int iOffset = (i + 1);      // Offset cột X (0, 1, 2)
     return kOffset + jOffset + iOffset;
 }
 
+/**
+ * Lấy danh sách chỉ số của 9 mảnh thuộc một mặt cụ thể.
+ * Hàm này duyệt qua toạ độ không gian tương ứng với mặt đó để tìm các mảnh.
+ * 
+ * @param face Mặt cần lấy (FRONT, BACK, v.v.).
+ * @param indices Mảng đầu ra chứa 9 chỉ số mảnh.
+ */
 void getFaceIndices(int face, int indices[9]) {
     int idx = 0;
     int i, j, k;
     
     switch (face) {
-        case FRONT:
+        case FRONT: // Mặt trước: Z = 1
             k = 1;
-            for (j = -1; j <= 1; j++) {
-                for (i = -1; i <= 1; i++) {
+            for (j = -1; j <= 1; j++) {     // Duyệt từ dưới lên trên
+                for (i = -1; i <= 1; i++) { // Duyệt từ trái sang phải
                     indices[idx++] = positionToIndex(i, j, k);
                 }
             }
             break;
             
-        case BACK:
+        case BACK: // Mặt sau: Z = -1
             k = -1;
             for (j = -1; j <= 1; j++) {
                 for (i = -1; i <= 1; i++) {
@@ -83,16 +101,16 @@ void getFaceIndices(int face, int indices[9]) {
             }
             break;
             
-        case LEFT:
+        case LEFT: // Mặt trái: X = -1
             i = -1;
             for (j = -1; j <= 1; j++) {
-                for (k = 1; k >= -1; k--) {
+                for (k = 1; k >= -1; k--) { // Duyệt từ trước ra sau
                     indices[idx++] = positionToIndex(i, j, k);
                 }
             }
             break;
             
-        case RIGHT:
+        case RIGHT: // Mặt phải: X = 1
             i = 1;
             for (j = -1; j <= 1; j++) {
                 for (k = 1; k >= -1; k--) {
@@ -101,7 +119,7 @@ void getFaceIndices(int face, int indices[9]) {
             }
             break;
             
-        case UP:
+        case UP: // Mặt trên: Y = 1
             j = 1;
             for (k = 1; k >= -1; k--) {
                 for (i = -1; i <= 1; i++) {
@@ -110,7 +128,7 @@ void getFaceIndices(int face, int indices[9]) {
             }
             break;
             
-        case DOWN:
+        case DOWN: // Mặt dưới: Y = -1
             j = -1;
             for (k = 1; k >= -1; k--) {
                 for (i = -1; i <= 1; i++) {
@@ -128,8 +146,18 @@ int encodePositionKey(int x, int y, int z) {
     return (x + 1) * 9 + (y + 1) * 3 + (z + 1);
 }
 
-// Khởi tạo Rubik's Cube về trạng thái đã giải
-// Tạo 27 mảnh (3x3x3) với màu sắc chuẩn
+/**
+ * Khởi tạo trạng thái ban đầu cho Rubik's Cube (trạng thái đã giải).
+ * Hàm này thiết lập vị trí, kích thước và màu sắc cho tất cả 27 mảnh.
+ * 
+ * Quy tắc màu chuẩn:
+ * - Trước (Front): Đỏ
+ * - Sau (Back): Cam
+ * - Trái (Left): Xanh lá
+ * - Phải (Right): Xanh dương
+ * - Trên (Up): Trắng
+ * - Dưới (Down): Vàng
+ */
 void initRubikCube() {
     g_rubikCube.pieceSize = PIECE_SIZE;
     g_rubikCube.gapSize = GAP_SIZE;
@@ -144,20 +172,21 @@ void initRubikCube() {
             for (int i = -1; i <= 1; i++) {
                 CubePiece& piece = g_rubikCube.pieces[index];
                 
-                // Lưu vị trí lưới
+                // Lưu vị trí lưới ban đầu
                 piece.position[0] = i;
                 piece.position[1] = j;
                 piece.position[2] = k;
                 piece.isVisible = true;
                 
-                // Khởi tạo tất cả mặt bằng màu đen (mặt ẩn)
+                // Khởi tạo tất cả mặt bằng màu đen (mặt ẩn bên trong khối)
                 for (int face = 0; face < 6; face++) {
                     piece.colors[face][0] = COLOR_BLACK[0];
                     piece.colors[face][1] = COLOR_BLACK[1];
                     piece.colors[face][2] = COLOR_BLACK[2];
                 }
                 
-                // Gán màu cho các mặt ngoài
+                // Gán màu cho các mặt ngoài (chỉ gán nếu mặt đó hướng ra ngoài)
+                
                 // Mặt trước (Z=1): Đỏ
                 if (k == 1) {
                     piece.colors[0][0] = COLOR_RED[0];
@@ -241,34 +270,41 @@ void shuffleCube(int numMoves) {
     }
 }
 
-// Kiểm tra xem cube đã được giải chưa
-// Cube được coi là giải nếu mỗi mặt có cùng một màu
+/**
+ * Kiểm tra xem khối Rubik đã được giải hoàn tất chưa.
+ * Một khối được coi là giải xong nếu tất cả 9 ô trên mỗi mặt đều cùng màu.
+ * 
+ * @return true nếu đã giải, false nếu chưa.
+ */
 bool isCubeSolved() {
-    const float tolerance = 0.05f;  // Dung sai so sánh màu
+    const float tolerance = 0.05f;  // Dung sai so sánh màu (do sai số số thực float)
     int indices[9];
     
-    // Kiểm tra từng mặt
+    // Kiểm tra lần lượt từng mặt trong 6 mặt
     for (int face = 0; face < 6; face++) {
-        // Lấy 9 mảnh của mặt này
+        // Lấy danh sách 9 mảnh thuộc mặt này
         getFaceIndices(face, indices);
         
-        // Lấy màu của mảnh trung tâm (chỉ số 4) làm chuẩn
+        // Lấy màu của mảnh trung tâm (chỉ số 4 trong mảng 9 phần tử) làm màu chuẩn
+        // Mảnh trung tâm của một mặt không bao giờ thay đổi vị trí tương đối
         const float* centerColor = g_rubikCube.pieces[indices[4]].colors[face];
         
-        // So sánh tất cả 9 mảnh với màu trung tâm
+        // So sánh màu của 8 mảnh còn lại với mảnh trung tâm
         for (int i = 0; i < 9; i++) {
             const float* sticker = g_rubikCube.pieces[indices[i]].colors[face];
-            // Tính khoảng cách màu (Manhattan distance)
+            
+            // Tính khoảng cách màu (Manhattan distance) để so sánh
             float diff = fabs(sticker[0] - centerColor[0]) +
                         fabs(sticker[1] - centerColor[1]) +
                         fabs(sticker[2] - centerColor[2]);
-            // Nếu khác biệt quá nhiều -> chưa giải
+            
+            // Nếu sự khác biệt lớn hơn dung sai -> màu không khớp -> chưa giải
             if (diff > tolerance) {
                 return false;
             }
         }
     }
-    return true;  // Tất cả mặt đều đồng màu
+    return true;  // Tất cả các mặt đều đồng màu
 }
 
 void testRotationIdentity() {
